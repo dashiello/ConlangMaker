@@ -1,14 +1,18 @@
 import Head from "next/head";
 import { Inter } from "next/font/google";
 import Link from "next/link";
-import { useContext, useState } from "react";
+import { useState } from "react";
+import prisma from "../lib/prisma";
+import { GetStaticProps } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Home() {
+export default function Home({ feed }: { feed: any }) {
   const [newLang, setNewLang] = useState<string>("");
 
   const [conlangs, setConlangs] = useState<string[]>([]);
+
+  console.log("feed: ", feed);
 
   return (
     <>
@@ -85,3 +89,18 @@ export default function Home() {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+  const feed = await prisma.post.findMany({
+    where: { published: true },
+    include: {
+      author: {
+        select: { name: true },
+      },
+    },
+  });
+  return {
+    props: { feed },
+    revalidate: 10,
+  };
+};
