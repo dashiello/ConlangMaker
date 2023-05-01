@@ -14,13 +14,26 @@ const inter = Inter({ subsets: ["latin"] });
 export default function Home({ conlangs }: { conlangs: any }) {
   const [newLang, setNewLang] = useState<string>("");
 
-  // const [conlangs, setConlangs] = useState<string[]>([]);
-
   const { language, setLanguage } = useContext(LocalLanguageContext);
 
   const { data: session } = useSession();
 
-  // console.log("feed: ", feed);
+  const createLanguage = async (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    try {
+      const body = { name: newLang };
+      await fetch("/api/conLang", {
+        credentials: "include",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      await Router.push("/");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   console.log("session: ", session);
   console.log("conlangs: ", conlangs);
 
@@ -44,24 +57,25 @@ export default function Home({ conlangs }: { conlangs: any }) {
           })}
           <div className="p-2 m-2">
             <strong>New Conlang: </strong>
-            <input
-              className="border border-black"
-              type="text"
-              onChange={(element) => {
-                setNewLang(element.target.value);
-              }}
-              value={newLang}
-            />
-            <button
-              className="px-4 py-2 mx-2 rounded text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-400"
-              onClick={() => {
-                createLanguage(newLang);
-                setLanguage({ ...language, name: newLang });
-                // setNewLang("");
-              }}
-            >
-              Add
-            </button>
+            <form onSubmit={createLanguage}>
+              <input
+                className="border border-black"
+                type="text"
+                onChange={(element) => {
+                  setNewLang(element.target.value);
+                }}
+                value={newLang}
+              />
+              <input
+                type="submit"
+                value={"Add"}
+                className="px-4 py-2 mx-2 rounded text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-400"
+                onClick={() => {
+                  setLanguage({ ...language, name: newLang });
+                  // setNewLang("");
+                }}
+              />
+            </form>
           </div>
         </div>
 
@@ -118,18 +132,4 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   });
 
   return { props: { conlangs } };
-};
-
-const createLanguage = async (languageName: string) => {
-  try {
-    const body = { name: languageName };
-    await fetch("/api/conLang", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    await Router.push("/");
-  } catch (error) {
-    console.error(error);
-  }
 };

@@ -27,9 +27,9 @@ export const authOptions = {
       }
       return token;
     },
-    // async session({ session, user }: { session: any; user: any }) {
-    //   session.user.id = user.id;
-    //   return session;
-    // },
+    async session({ session, user }: { session: any; user: any }) {
+      session.user.id = user.id;
+      return session;
+    },
   },
 };
