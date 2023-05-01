@@ -1,4 +1,4 @@
-import { Phone } from "@/types/phoneticTypes";
+import { Phone } from "@/types/languageTypes";
 
 export default function ConsonantsTable({
   consonantsToAdd,
