@@ -1,20 +1,23 @@
-import ConsonantsTable from "@/components/consonants";
+import ConsonantsTable from "@/components/phoneticsConsonants";
 import Header from "@/components/header";
 import { Phone } from "@/types/languageTypes";
+import { useContext } from "react";
+import Router from "next/router";
 
 export default function Phonetics() {
+
   const consonantsToAdd: Phone[] = [];
+
   return (
     <>
       <Header />
       <div className="mx-16">
-        <h1>Phonetics</h1>
+        <h1>Phonetics for {"test"}</h1>
         <h2>Consonants</h2>
         <ConsonantsTable consonantsToAdd={consonantsToAdd} />
         <button
           className="px-4 py-2 m-1 bg-blue-600 text-white rounded hover:bg-blue-500 active:bg-blue-400 "
           onClick={() => {
-            console.log("consonantsToAdd: ", consonantsToAdd);
           }}
         >
           Save Changes

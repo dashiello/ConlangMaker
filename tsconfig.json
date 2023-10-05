@@ -23,6 +23,6 @@
     "**/*.ts",
     "**/*.tsx",
     "pages/api/auth/[...nextauth].ts"
-, "pages/api/conLang/index.js"  ],
+, "pages/api/conLang/index.ts"  ],
   "exclude": ["node_modules"]
 }

@@ -1,41 +1,32 @@
 import Head from "next/head";
 import { Inter } from "next/font/google";
 import Link from "next/link";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import prisma from "../lib/prisma";
-import { GetServerSideProps, GetStaticProps } from "next";
-import { useSession, signIn, signOut, getSession } from "next-auth/react";
+import { GetServerSideProps } from "next";
+import { getSession } from "next-auth/react";
 import Header from "@/components/header";
-import LocalLanguageContext from "@/contexts/localLanguage";
 import Router from "next/router";
 
 const inter = Inter({ subsets: ["latin"] });
 
+const createLanguage = async (conlangName: string) => {
+  try {
+    const body = { conLangName: conlangName };
+    await fetch("/api/conLang", {
+      credentials: "include",
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    await Router.push("/");
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export default function Home({ conlangs }: { conlangs: any }) {
   const [newLang, setNewLang] = useState<string>("");
-
-  const { language, setLanguage } = useContext(LocalLanguageContext);
-
-  const { data: session } = useSession();
-
-  const createLanguage = async (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    try {
-      const body = { name: newLang };
-      await fetch("/api/conLang", {
-        credentials: "include",
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      await Router.push("/");
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  console.log("session: ", session);
-  console.log("conlangs: ", conlangs);
 
   return (
     <>
@@ -57,25 +48,23 @@ export default function Home({ conlangs }: { conlangs: any }) {
           })}
           <div className="p-2 m-2">
             <strong>New Conlang: </strong>
-            <form onSubmit={createLanguage}>
-              <input
-                className="border border-black"
-                type="text"
-                onChange={(element) => {
-                  setNewLang(element.target.value);
-                }}
-                value={newLang}
-              />
-              <input
-                type="submit"
-                value={"Add"}
-                className="px-4 py-2 mx-2 rounded text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-400"
-                onClick={() => {
-                  setLanguage({ ...language, name: newLang });
-                  // setNewLang("");
-                }}
-              />
-            </form>
+            <input
+              className="border border-black"
+              type="text"
+              onChange={(element) => {
+                setNewLang(element.target.value);
+              }}
+              value={newLang}
+            />
+            <input
+              type="submit"
+              value={"Add"}
+              className="px-4 py-2 mx-2 rounded text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-400"
+              onClick={() => {
+                createLanguage(newLang);
+                setNewLang("");
+              }}
+            />
           </div>
         </div>
 
