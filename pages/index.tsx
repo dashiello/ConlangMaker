@@ -3,16 +3,30 @@ import { Inter } from "next/font/google";
 import Link from "next/link";
 import { useState } from "react";
 import prisma from "../lib/prisma";
-import { GetStaticProps } from "next";
+import { GetServerSideProps } from "next";
+import { getSession } from "next-auth/react";
+import Header from "@/components/header";
+import Router from "next/router";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Home({ feed }: { feed: any }) {
+const createLanguage = async (conlangName: string) => {
+  try {
+    const body = { conLangName: conlangName };
+    await fetch("/api/conLang", {
+      credentials: "include",
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    await Router.push("/");
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export default function Home({ conlangs }: { conlangs: any }) {
   const [newLang, setNewLang] = useState<string>("");
-
-  const [conlangs, setConlangs] = useState<string[]>([]);
-
-  console.log("feed: ", feed);
 
   return (
     <>
@@ -26,12 +40,11 @@ export default function Home({ feed }: { feed: any }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div>
-        <h1>Conlang Maker</h1>
-
+        <Header />
         <div>
           <h2>Languages:</h2>
           {conlangs.map((conlang: any, index: number) => {
-            return <div key={index}>{conlang}</div>;
+            return <div key={index}>{conlang.name}</div>;
           })}
           <div className="p-2 m-2">
             <strong>New Conlang: </strong>
@@ -43,15 +56,15 @@ export default function Home({ feed }: { feed: any }) {
               }}
               value={newLang}
             />
-            <button
+            <input
+              type="submit"
+              value={"Add"}
               className="px-4 py-2 mx-2 rounded text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-400"
               onClick={() => {
-                setConlangs(conlangs.concat(newLang));
+                createLanguage(newLang);
                 setNewLang("");
               }}
-            >
-              Add
-            </button>
+            />
           </div>
         </div>
 
@@ -90,17 +103,22 @@ export default function Home({ feed }: { feed: any }) {
   );
 }
 
-export const getStaticProps: GetStaticProps = async () => {
-  const feed = await prisma.post.findMany({
-    where: { published: true },
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const session = await getSession({ req });
+  if (!session) {
+    res.statusCode = 403;
+    return { props: { conlangs: [] } };
+  }
+  const conlangs = await prisma.conLang.findMany({
+    where: {
+      owner: { email: session.user?.email },
+    },
     include: {
-      author: {
+      owner: {
         select: { name: true },
       },
     },
   });
-  return {
-    props: { feed },
-    revalidate: 10,
-  };
+
+  return { props: { conlangs } };
 };

@@ -23,7 +23,6 @@ export default function Syllables() {
         onClick={() => {
           syllableStructuresToAdd.push(textInput);
           setTextInput("");
-          console.log("syllableStructuresToAdd", syllableStructuresToAdd);
         }}
       >
         Add
